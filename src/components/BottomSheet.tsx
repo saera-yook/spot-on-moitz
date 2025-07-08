@@ -13,7 +13,7 @@ export const BottomSheet = ({
   children, 
   title,
   defaultExpanded = false,
-  collapsedHeight = "4rem"
+  collapsedHeight = "16rem"
 }: BottomSheetProps) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
