@@ -112,23 +112,6 @@ export const Home = () => {
               />
             </div>
 
-            <div>
-              <Label htmlFor="purpose" className="text-sm font-medium">
-                모임 목적
-              </Label>
-              <Select value={purpose} onValueChange={setPurpose}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="모임 목적을 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="meal">식사</SelectItem>
-                  <SelectItem value="chat">수다</SelectItem>
-                  <SelectItem value="meeting">회의</SelectItem>
-                  <SelectItem value="study">공부</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <Button 
               onClick={addMember}
               className="w-full"
