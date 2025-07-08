@@ -27,7 +27,7 @@ export const LocationCard = ({
   imageUrl,
   isSelected = false,
   isPinned = false,
-  onSelect
+  onSelect,
   onPin,
   showPinButton = false
 }: LocationCardProps) => {
