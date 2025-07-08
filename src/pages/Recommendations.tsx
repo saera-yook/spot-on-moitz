@@ -217,19 +217,18 @@ export const Recommendations = () => {
   };
 
   const goToVoting = () => {
-    if (selectedLocations.length === 0) {
-      toast.error("투표할 장소를 선택해주세요");
+    if (recommendations.length === 0) {
+      toast.error("추천 장소가 없습니다");
       return;
     }
     
-    const selectedRecommendations = recommendations.filter(rec => 
-      selectedLocations.includes(rec.id)
-    );
+    // 현재 추천된 모든 장소를 투표 대상으로 전달
+    const votingRecommendations = recommendations;
     
     navigate("/voting", { 
       state: { 
         members, 
-        recommendations: selectedRecommendations 
+        recommendations: votingRecommendations 
       } 
     });
   };
@@ -300,16 +299,20 @@ export const Recommendations = () => {
             onClick={goToVoting}
             variant="success"
             className="flex-1"
-            disabled={selectedLocations.length === 0}
+            disabled={recommendations.length === 0}
           >
             <Vote className="w-4 h-4 mr-2" />
             최종 투표하기
           </Button>
         </div>
         
-        {selectedLocations.length > 0 && (
+        {selectedLocations.length > 0 ? (
           <p className="text-xs text-center text-muted-foreground">
             {selectedLocations.length}개 장소가 선택되었습니다
+          </p>
+        ) : (
+          <p className="text-xs text-center text-muted-foreground">
+            현재 추천된 {recommendations.length}개 장소로 투표를 진행합니다
           </p>
         )}
         

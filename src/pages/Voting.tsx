@@ -1,6 +1,7 @@
+import * as React from "react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Share2, Trophy, Users, MapPin } from "lucide-react";
+import { Share2, Trophy, Users, MapPin, Copy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileContainer } from "@/components/MobileContainer";
 import { Header } from "@/components/Header";
@@ -51,6 +52,18 @@ export const Voting = () => {
   
   const [userVote, setUserVote] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string>("");
+
+  // 컴포넌트 마운트 시 공유 URL 생성
+  React.useEffect(() => {
+    const currentUrl = window.location.href;
+    const urlParams = new URLSearchParams();
+    urlParams.set('members', JSON.stringify(members));
+    urlParams.set('recommendations', JSON.stringify(recommendations));
+    
+    const guestVoteUrl = `${window.location.origin}/voting?${urlParams.toString()}`;
+    setShareUrl(guestVoteUrl);
+  }, [members, recommendations]);
 
   const totalVotes = votes.reduce((sum, vote) => sum + vote.votes, 0);
   const sortedVotes = [...votes].sort((a, b) => b.votes - a.votes);
@@ -78,16 +91,33 @@ export const Voting = () => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "모잇지 투표",
-          text: "약속 장소를 투표해주세요!",
-          url: window.location.href
+          title: "모잇지 - 약속 장소 투표",
+          text: `${members.map(m => m.nickname).join(', ')}님과의 약속 장소를 투표해주세요!`,
+          url: shareUrl
         });
+        toast.success("투표 링크가 공유되었습니다!");
       } else {
-        await navigator.clipboard.writeText(window.location.href);
+        await navigator.clipboard.writeText(shareUrl);
         toast.success("링크가 복사되었습니다!");
       }
     } catch (error) {
-      toast.error("공유에 실패했습니다");
+      console.error("Share failed:", error);
+      // 폴백: 클립보드에 복사
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("링크가 복사되었습니다!");
+      } catch (clipboardError) {
+        toast.error("공유에 실패했습니다");
+      }
+    }
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("투표 링크가 복사되었습니다!");
+    } catch (error) {
+      toast.error("링크 복사에 실패했습니다");
     }
   };
 
@@ -191,20 +221,46 @@ export const Voting = () => {
         </div>
 
         {/* 공유 버튼 */}
-        <div className="pt-4 border-t">
+        <div className="pt-4 border-t space-y-3">
+          <div className="bg-accent/30 p-4 rounded-lg space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">게스트 투표 참여</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              친구들에게 링크를 공유하여 투표에 참여하게 할 수 있습니다
+            </p>
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleShare}
+                variant="default"
+                className="flex-1"
+                size="sm"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                공유하기
+              </Button>
+              <Button 
+                onClick={copyToClipboard}
+                variant="outline"
+                size="sm"
+                className="px-3"
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          
           <Button 
-            onClick={handleShare}
+            onClick={() => window.open(shareUrl, '_blank')}
             variant="outline"
             className="w-full"
             size="mobile"
           >
-            <Share2 className="w-4 h-4 mr-2" />
-            친구들에게 투표 링크 공유하기
+            <ExternalLink className="w-4 h-4 mr-2" />
+            새 창에서 게스트 투표 페이지 열기
           </Button>
-          
-          <p className="text-xs text-center text-muted-foreground mt-2">
-            링크를 공유하여 친구들도 투표할 수 있어요
-          </p>
         </div>
 
         {!userVote && (
