@@ -6,12 +6,14 @@ interface BottomSheetProps {
   children: ReactNode;
   title?: string;
   defaultExpanded?: boolean;
+  collapsedHeight?: string;
 }
 
 export const BottomSheet = ({ 
   children, 
   title,
-  defaultExpanded = false 
+  defaultExpanded = false,
+  collapsedHeight = "4rem"
 }: BottomSheetProps) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
@@ -19,7 +21,7 @@ export const BottomSheet = ({
     <div className={cn(
       "fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-strong transition-transform duration-300 z-40",
       "max-w-sm mx-auto rounded-t-xl",
-      isExpanded ? "translate-y-0" : "translate-y-[calc(100%-4rem)]"
+      isExpanded ? "translate-y-0" : `translate-y-[calc(100%-${collapsedHeight})]`
     )}>
       <div 
         className="flex items-center justify-between p-4 cursor-pointer"

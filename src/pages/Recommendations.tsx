@@ -29,7 +29,7 @@ interface Recommendation {
 export const Recommendations = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { members = [] }: { members: Member[] } = location.state || {};
+  const { members = [], purpose = "" }: { members: Member[]; purpose: string } = location.state || {};
   
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -38,36 +38,39 @@ export const Recommendations = () => {
   // 더미 추천 장소 데이터
   const generateRecommendations = (): Recommendation[] => {
     const dummyRecommendations = [
-      {
-        id: "1",
-        name: "스타벅스 강남점",
-        category: "카페",
-        address: "서울특별시 강남구 강남대로 390",
-        travelTime: 15,
-        rating: 4.2,
-        latitude: 37.5665,
-        longitude: 126.9780
-      },
-      {
-        id: "2", 
-        name: "투썸플레이스 홍대점",
-        category: "카페",
-        address: "서울특별시 마포구 양화로 160",
-        travelTime: 18,
-        rating: 4.1,
-        latitude: 37.5563,
-        longitude: 126.9241
-      },
-      {
-        id: "3",
-        name: "CGV 강남점",
-        category: "영화관",
-        address: "서울특별시 강남구 강남대로 438",
-        travelTime: 20,
-        rating: 4.3,
-        latitude: 37.5665,
-        longitude: 126.9780
-      }
+        {
+          id: "1",
+          name: "스타벅스 강남점",
+          category: "카페",
+          address: "서울특별시 강남구 강남대로 390",
+          travelTime: 15,
+          rating: 4.2,
+          imageUrl: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=200&fit=crop",
+          latitude: 37.5665,
+          longitude: 126.9780
+        },
+        {
+          id: "2", 
+          name: "투썸플레이스 홍대점",
+          category: "카페",
+          address: "서울특별시 마포구 양화로 160",
+          travelTime: 18,
+          rating: 4.1,
+          imageUrl: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=400&h=200&fit=crop",
+          latitude: 37.5563,
+          longitude: 126.9241
+        },
+        {
+          id: "3",
+          name: "CGV 강남점",
+          category: "영화관",
+          address: "서울특별시 강남구 강남대로 438",
+          travelTime: 20,
+          rating: 4.3,
+          imageUrl: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=200&fit=crop",
+          latitude: 37.5665,
+          longitude: 126.9780
+        }
     ];
     
     return dummyRecommendations;
@@ -211,7 +214,7 @@ export const Recommendations = () => {
       </div>
 
       {/* 추천 장소 리스트 (Bottom Sheet) */}
-      <BottomSheet title="추천 장소" defaultExpanded={true}>
+      <BottomSheet title="추천 장소" defaultExpanded={true} collapsedHeight="13rem">
         <div className="p-4 space-y-3">
           {recommendations.map((recommendation) => (
             <LocationCard
@@ -221,6 +224,7 @@ export const Recommendations = () => {
               address={recommendation.address}
               travelTime={recommendation.travelTime}
               rating={recommendation.rating}
+              imageUrl={recommendation.imageUrl}
               isSelected={selectedLocations.includes(recommendation.id)}
               onSelect={() => handleLocationSelect(recommendation.id)}
             />

@@ -1,8 +1,6 @@
-import { MapPin, Clock, Star, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MapPin, Clock, Star, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface LocationCardProps {
   name: string;
@@ -13,7 +11,6 @@ interface LocationCardProps {
   imageUrl?: string;
   isSelected?: boolean;
   onSelect?: () => void;
-  onToggleFavorite?: () => void;
 }
 
 export const LocationCard = ({ 
@@ -24,72 +21,59 @@ export const LocationCard = ({
   rating,
   imageUrl,
   isSelected = false,
-  onSelect,
-  onToggleFavorite
+  onSelect
 }: LocationCardProps) => {
-  const [isFavorited, setIsFavorited] = useState(false);
-
-  const handleFavoriteClick = () => {
-    setIsFavorited(!isFavorited);
-    onToggleFavorite?.();
-  };
+  const defaultImageUrl = "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=200&fit=crop";
+  const displayImageUrl = imageUrl || defaultImageUrl;
 
   return (
     <Card 
-      className={`p-4 cursor-pointer transition-all duration-200 hover:shadow-medium ${
-        isSelected ? 'ring-2 ring-primary bg-accent' : 'bg-card'
-      }`}
+      className={cn(
+        "cursor-pointer transition-all duration-200 border-2 overflow-hidden",
+        isSelected 
+          ? "border-primary bg-primary/5 shadow-elegant" 
+          : "border-border hover:border-primary/50 hover:shadow-soft"
+      )}
       onClick={onSelect}
     >
-      <div className="flex gap-3">
-        {imageUrl && (
-          <div className="w-16 h-16 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
-            <img 
-              src={imageUrl} 
-              alt={name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
+      <div className="flex gap-3 p-4">
+        {/* 이미지 */}
+        <div className="flex-shrink-0">
+          <img 
+            src={displayImageUrl} 
+            alt={name}
+            className="w-20 h-20 rounded-lg object-cover"
+            onError={(e) => {
+              e.currentTarget.src = defaultImageUrl;
+            }}
+          />
+        </div>
         
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <h3 className="font-semibold text-foreground truncate">{name}</h3>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleFavoriteClick();
-              }}
-              className="h-8 w-8 flex-shrink-0"
-            >
-              <Heart 
-                className={`w-4 h-4 ${
-                  isFavorited ? 'fill-red-500 text-red-500' : 'text-muted-foreground'
-                }`} 
-              />
-            </Button>
-          </div>
-          
-          <Badge variant="secondary" className="mb-2">
-            {category}
-          </Badge>
-          
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-            <div className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              <span>{travelTime}분</span>
+        {/* 콘텐츠 */}
+        <div className="flex-1 space-y-2">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold text-foreground truncate">{name}</h3>
+                {isSelected && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+              </div>
+              <p className="text-sm text-muted-foreground">{category}</p>
             </div>
-            <div className="flex items-center gap-1">
-              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              <span>{rating.toFixed(1)}</span>
+            <div className="flex items-center gap-1 text-sm flex-shrink-0 ml-2">
+              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+              <span className="font-medium">{rating}</span>
             </div>
           </div>
           
-          <div className="flex items-start gap-1">
-            <MapPin className="w-3 h-3 text-muted-foreground mt-0.5 flex-shrink-0" />
-            <span className="text-xs text-muted-foreground leading-tight">{address}</span>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="w-3 h-3 flex-shrink-0" />
+              <span className="truncate">{address}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="w-3 h-3 flex-shrink-0" />
+              <span>평균 {travelTime}분 소요</span>
+            </div>
           </div>
         </div>
       </div>
