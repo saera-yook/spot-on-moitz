@@ -321,7 +321,7 @@ export const Recommendations = () => {
       </div>
 
       {/* 추천 장소 리스트 (Bottom Sheet) */}
-      <BottomSheet title="추천 장소" defaultExpanded={false} collapsedHeight="8rem">
+      <BottomSheet title="추천 장소" defaultExpanded={false} collapsedHeight="12rem">
         <div className="p-4 space-y-3">
           {recommendations.map((recommendation) => (
             <LocationCard

@@ -13,18 +13,23 @@ export const BottomSheet = ({
   children, 
   title,
   defaultExpanded = false,
-  collapsedHeight = "16rem"
+  collapsedHeight = "8rem"
 }: BottomSheetProps) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
-    <div className={cn(
-      "fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-strong transition-transform duration-300 z-40",
-      "max-w-sm mx-auto rounded-t-xl",
-      isExpanded ? "translate-y-0" : `translate-y-[calc(100%-${collapsedHeight})]`
-    )}>
+    <div 
+      className={cn(
+        "fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-strong z-40",
+        "max-w-sm mx-auto rounded-t-xl transition-all duration-300 ease-out"
+      )}
+      style={{
+        height: isExpanded ? "60vh" : collapsedHeight,
+      }}
+    >
+      {/* 헤더 영역 */}
       <div 
-        className="flex items-center justify-between p-4 cursor-pointer"
+        className="flex items-center justify-between p-4 cursor-pointer border-b border-border/50"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         {title && (
@@ -42,10 +47,16 @@ export const BottomSheet = ({
         </div>
       </div>
       
-      <div className={cn(
-        "max-h-[60vh] overflow-y-auto",
-        isExpanded ? "block" : "hidden"
-      )}>
+      {/* 콘텐츠 영역 - 항상 렌더링되지만 스크롤 가능 */}
+      <div 
+        className={cn(
+          "overflow-y-auto transition-all duration-300",
+          "h-full pb-4"
+        )}
+        style={{
+          height: `calc(100% - 4rem)`, // 헤더 높이 제외
+        }}
+      >
         {children}
       </div>
     </div>
