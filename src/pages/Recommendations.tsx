@@ -33,6 +33,7 @@ export const Recommendations = () => {
   
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [pinnedLocations, setPinnedLocations] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 더미 추천 장소 데이터
@@ -76,6 +77,69 @@ export const Recommendations = () => {
     return dummyRecommendations;
   };
 
+  // 새로운 추천 장소 생성 (고정되지 않은 장소만)
+  const generateNewRecommendations = (): Recommendation[] => {
+    const newRecommendations = [
+      {
+        id: "new_1",
+        name: "이디야커피 신촌점",
+        category: "카페",
+        address: "서울특별시 서대문구 신촌로 83",
+        travelTime: 12,
+        rating: 4.0,
+        imageUrl: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=200&fit=crop",
+        latitude: 37.5596,
+        longitude: 126.9423
+      },
+      {
+        id: "new_2",
+        name: "메가박스 코엑스점",
+        category: "영화관", 
+        address: "서울특별시 강남구 영동대로 513",
+        travelTime: 25,
+        rating: 4.4,
+        imageUrl: "https://images.unsplash.com/photo-1489185078254-c3365d6e359f?w=400&h=200&fit=crop",
+        latitude: 37.5125,
+        longitude: 127.0594
+      },
+      {
+        id: "new_3",
+        name: "카페베네 홍대점",
+        category: "카페",
+        address: "서울특별시 마포구 와우산로 94",
+        travelTime: 16,
+        rating: 3.9,
+        imageUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=200&fit=crop",
+        latitude: 37.5563,
+        longitude: 126.9241
+      },
+      {
+        id: "new_4",
+        name: "롯데시네마 건대입구점",
+        category: "영화관",
+        address: "서울특별시 광진구 아차산로 272",
+        travelTime: 22,
+        rating: 4.2,
+        imageUrl: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=200&fit=crop",
+        latitude: 37.5403,
+        longitude: 127.0698
+      },
+      {
+        id: "new_5",
+        name: "스타벅스 이태원점",
+        category: "카페",
+        address: "서울특별시 용산구 이태원로 177",
+        travelTime: 19,
+        rating: 4.1,
+        imageUrl: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=200&fit=crop",
+        latitude: 37.5347,
+        longitude: 126.9947
+      }
+    ];
+    
+    return newRecommendations;
+  };
+
   useEffect(() => {
     if (members.length === 0) {
       navigate("/");
@@ -101,17 +165,54 @@ export const Recommendations = () => {
     });
   };
 
+  const handleLocationPin = (locationId: string) => {
+    setPinnedLocations(prev => {
+      if (prev.includes(locationId)) {
+        const updated = prev.filter(id => id !== locationId);
+        toast.success("장소 고정이 해제되었습니다");
+        return updated;
+      } else {
+        const updated = [...prev, locationId];
+        toast.success("장소가 고정되었습니다");
+        return updated;
+      }
+    });
+  };
+
   const handleRecommendAgain = () => {
+    const pinnedCount = pinnedLocations.length;
+    const needNewCount = 3 - pinnedCount;
+    
+    if (needNewCount === 0) {
+      toast.error("모든 장소가 고정되어 있습니다");
+      return;
+    }
+    
     setLoading(true);
+    
     setTimeout(() => {
-      const newRecommendations = generateRecommendations().map(rec => ({
-        ...rec,
-        id: rec.id + "_new",
-        travelTime: rec.travelTime + Math.floor(Math.random() * 10) - 5
-      }));
-      setRecommendations(newRecommendations);
+      // 고정된 장소들 유지
+      const pinnedRecs = recommendations.filter(rec => pinnedLocations.includes(rec.id));
+      
+      // 새로운 장소들 생성
+      const allNewRecs = generateNewRecommendations();
+      const selectedNewRecs = allNewRecs.slice(0, needNewCount);
+      
+      // 고정된 장소 + 새로운 장소 조합
+      const updatedRecommendations = [...pinnedRecs, ...selectedNewRecs];
+      
+      setRecommendations(updatedRecommendations);
+      
+      // 선택된 장소 중 고정되지 않은 것들 제거
+      setSelectedLocations(prev => prev.filter(id => pinnedLocations.includes(id)));
+      
       setLoading(false);
-      toast.success("새로운 장소를 추천했습니다!");
+      
+      if (pinnedCount > 0) {
+        toast.success(`고정된 ${pinnedCount}개 장소를 유지하고 ${needNewCount}개 새로운 장소를 추천했습니다!`);
+      } else {
+        toast.success("새로운 장소를 추천했습니다!");
+      }
     }, 1500);
   };
 
@@ -193,7 +294,7 @@ export const Recommendations = () => {
             className="flex-1"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
-            다시 추천받기
+            {pinnedLocations.length > 0 ? `${3 - pinnedLocations.length}곳 재추천` : "다시 추천받기"}
           </Button>
           <Button 
             onClick={goToVoting}
@@ -211,6 +312,12 @@ export const Recommendations = () => {
             {selectedLocations.length}개 장소가 선택되었습니다
           </p>
         )}
+        
+        {pinnedLocations.length > 0 && (
+          <p className="text-xs text-center text-warning">
+            📌 {pinnedLocations.length}개 장소가 고정되었습니다
+          </p>
+        )}
       </div>
 
       {/* 추천 장소 리스트 (Bottom Sheet) */}
@@ -226,7 +333,10 @@ export const Recommendations = () => {
               rating={recommendation.rating}
               imageUrl={recommendation.imageUrl}
               isSelected={selectedLocations.includes(recommendation.id)}
+              isPinned={pinnedLocations.includes(recommendation.id)}
               onSelect={() => handleLocationSelect(recommendation.id)}
+              onPin={() => handleLocationPin(recommendation.id)}
+              showPinButton={true}
             />
           ))}
         </div>
